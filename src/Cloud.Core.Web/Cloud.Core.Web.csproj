@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Company></Company>
+    <IsPackable>true</IsPackable>
+    <PackageId>Cloud.Core.Web</PackageId>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageTags>Cloud.Core.Web .net-Core Core Web</PackageTags>
+    <PackageReleaseNotes />
+    <Description>Core Web functionality for Cloud web based projects.</Description>
+    <Copyright></Copyright>
+    <Version>1.0</Version>
+    <PackageIconUrl></PackageIconUrl>
+    <Authors>Robert McCabe</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Csv\**" />
+    <EmbeddedResource Remove="Csv\**" />
+    <None Remove="Csv\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.2" />
+  </ItemGroup>
+
+</Project>

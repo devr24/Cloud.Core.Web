@@ -50,6 +50,16 @@
             Message = defaultMessage;
             Errors = new List<ApiError>{ new ApiError(ex.Message) };
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiErrorResult"/> class with string.
+        /// </summary>
+        /// <param name="errorDescription">The custom description of what went wrong.</param>
+        public ApiErrorResult(string errorDescription)
+        {
+            Message = errorDescription;
+            Errors = new List<ApiError> { new ApiError(errorDescription) };
+        }
     }
 
     /// <summary>
@@ -57,6 +67,12 @@
     /// </summary>
     public class ApiError
     {
+        /// <summary>
+        /// Object can only be constructed internally - to clarify that users should create the
+        /// ApiErrorResult object, not the ApiError object.
+        /// </summary>
+        internal ApiError() { }
+
         /// <summary>
         /// Gets the field name.
         /// </summary>

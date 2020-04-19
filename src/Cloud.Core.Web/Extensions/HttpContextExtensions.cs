@@ -48,5 +48,32 @@
         /// <param name="context">The context.</param>
         /// <returns>String client IP.</returns>
         public static string GetClientIpAddress(this HttpContext context) => context.Connection.RemoteIpAddress?.ToString();
+
+        /// <summary>
+        /// Gets user id from a claim.
+        /// </summary>
+        /// <param name="context">The context to find the user id from.</param>
+        /// <returns>User Id.</returns>
+        public static string GetUserId(this HttpContext context)
+        {
+            if (context.User == null)
+                return null;
+
+            var userId = context.User.FindFirst(
+                x => x.Type.Equals("http://schemas.microsoft.com/identity/claims/objectidentifier") || x.Type.Equals("oid")).Value;
+
+            // Default.
+            return userId;
+        }
+
+        /// <summary>
+        /// Get the request referer url from the header.
+        /// </summary>
+        /// <param name="context">The context to find the referer from.</param>
+        /// <returns>string referer url.</returns>
+        public static string GetRequestReferer(this HttpContext context)
+        {
+            return context.GetRequestHeader("Referer");
+        }
     }
 }

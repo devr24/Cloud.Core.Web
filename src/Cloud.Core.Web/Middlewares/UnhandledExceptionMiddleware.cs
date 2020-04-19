@@ -1,4 +1,4 @@
-﻿namespace Cloud.Core.Web
+﻿namespace Cloud.Core.Web.Middlewares
 {
     using System;
     using System.Net;
@@ -29,20 +29,36 @@
             {
                 await _next(context);
             }
+            catch (Exception ex) 
+                when (ex.Message.Contains("Cannot open server"))
+            {
+                // Specific catch for sql related server connections.  We do this here because we DON'T want to
+                // output potentially sensitive information as an exception.
+                await HandleExceptionAsync(context, ex, true);
+            }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, $"An unhandled exception has occurred while executing {context.Request.Method}");
                 await HandleExceptionAsync(context, ex);
             }
         }
 
-        internal Task HandleExceptionAsync(HttpContext context, Exception exception)
+        internal Task HandleExceptionAsync(HttpContext context, Exception exception, bool applySensitiveInfoFilter = false)
         {
             // 500 if unexpected, would have been this anyway.
-            var code = HttpStatusCode.InternalServerError; 
-            
+            var code = HttpStatusCode.InternalServerError;
+
+            var message = exception.Message;
+
+            // We will supress exception messages under specific conditions, so replace message with default.
+            if (applySensitiveInfoFilter)
+            {
+                message = $"An exception occurred of type {exception.GetBaseException().GetType().Name}. Message has been surpressed, please contact support for more information.";
+            }
+
+            _logger?.LogError(exception, $"An unhandled exception has occurred while executing {context.Request.Method}");
+
             // ApiErrorResponse will be output.
-            var apiError = new ApiErrorResult(exception, exception.Message); 
+            var apiError = new ApiErrorResult(exception, message); 
 
             var result = JsonConvert.SerializeObject(apiError);
             context.Response.ContentType = "application/json";

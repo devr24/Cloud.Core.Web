@@ -9,7 +9,6 @@ using Cloud.Core.Testing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -18,18 +17,21 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
-using HttpResponse = Microsoft.AspNetCore.Http.HttpResponse;
+using Cloud.Core.Web.Attributes;
+using Cloud.Core.Web.Middlewares;
 
 namespace Cloud.Core.Web.Tests
 {
+    [IsUnit]
     public class CoreWebTest
     {
         // Http Extension
-        [Fact, IsUnit]
+        [Fact]
         public void Test_HttpExtensions_RequestToFormattedString()
         {
             // Arrange
@@ -43,7 +45,7 @@ namespace Cloud.Core.Web.Tests
             str.IndexOf("Hostname: localhost", StringComparison.InvariantCulture).Should().BeGreaterThan(0);
         }
 
-        [Fact, IsUnit]
+        [Fact]
         public void Test_HttpExtensions_ResponseToFormattedString()
         {
             // Arrange
@@ -58,7 +60,7 @@ namespace Cloud.Core.Web.Tests
         }
 
         // Validate Attribute
-        [Theory, IsUnit]
+        [Theory]
         [InlineData("test", "test cannot be tested")]
         [InlineData("attribute", "this attribute is invalid")]
         public void Test_ValidateModelAttribute_Invoke(string key, string message)
@@ -68,7 +70,7 @@ namespace Cloud.Core.Web.Tests
             serviceProviderMock.Setup(serviceProvider =>
                     serviceProvider.GetService(typeof(ILogger<ValidateModelAttribute>)))
                 .Returns(Mock.Of<ILogger<ValidateModelAttribute>>());
-            var httpContext = new DefaultHttpContext {RequestServices = serviceProviderMock.Object};
+            var httpContext = new DefaultHttpContext { RequestServices = serviceProviderMock.Object };
             var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
 
             var actionExecutingContext = new ActionExecutingContext(actionContext,
@@ -94,7 +96,43 @@ namespace Cloud.Core.Web.Tests
             errorResult.Errors[0].Field.Should().Be(key);
         }
 
-        [Theory, IsUnit]
+        [Theory]
+        [InlineData("test", "test cannot be tested")]
+        [InlineData("attribute", "this attribute is invalid")]
+        public void Test_ValidateModelAttribute_InvokeWithParam(string key, string message)
+        {
+            // Arrange
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock.Setup(serviceProvider =>
+                    serviceProvider.GetService(typeof(ILogger)))
+                .Returns(Mock.Of<ILogger>());
+            var httpContext = new DefaultHttpContext { RequestServices = serviceProviderMock.Object };
+            var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
+
+            var actionExecutingContext = new ActionExecutingContext(actionContext,
+                filters: new List<IFilterMetadata>(), // for majority of scenarios you need not worry about populating this parameter
+                actionArguments:
+                new Dictionary<string, object>(), // if the filter uses this data, add some data to this dictionary
+                controller: null); // since the filter being tested here does not use the data from this parameter, just provide null
+
+            var validationFilter = new ValidateModelAttribute(true);
+
+            // Act
+            actionContext.ModelState.AddModelError(key, message);
+            validationFilter.OnActionExecuting(actionExecutingContext);
+            var validationResult = Assert.IsType<ValidationFailedResult>(actionExecutingContext.Result);
+
+            // Assert
+            validationResult.StatusCode.Should().Be(400);
+
+            var errorResult = Assert.IsType<ApiErrorResult>(validationResult.Value);
+            errorResult.Message.Should().Be("Validation Error");
+            errorResult.Errors.Count.Should().Be(1);
+            errorResult.Errors[0].Message.Should().Be(message);
+            errorResult.Errors[0].Field.Should().Be(key);
+        }
+
+        [Theory]
         [InlineData("test", "test cannot be tested")]
         [InlineData("attribute", "this attribute is invalid")]
         public void Test_ApiErrorResult_Instance(string key, string message)
@@ -104,13 +142,16 @@ namespace Cloud.Core.Web.Tests
             serviceProviderMock.Setup(serviceProvider =>
                     serviceProvider.GetService(typeof(ILogger<ValidateModelAttribute>)))
                 .Returns(Mock.Of<ILogger<ValidateModelAttribute>>());
-            var httpContext = new DefaultHttpContext {RequestServices = serviceProviderMock.Object};
+            var httpContext = new DefaultHttpContext { RequestServices = serviceProviderMock.Object };
 
             // Act
-            ApiErrorResult err = new ApiErrorResult(new Exception(message), key);
-            InternalServerErrorResult servErr = new InternalServerErrorResult(new Exception(message));
-            HttpResponse res = new DefaultHttpResponse(httpContext);
-            HttpRequest req = new DefaultHttpRequest(httpContext);
+            var err = new ApiErrorResult(new Exception(message), key);
+            var servErr = new InternalServerErrorResult(new Exception(message));
+            var res = httpContext.Response;
+            var req = httpContext.Request;
+            var apiError = new ApiError("", "");
+            apiError = new ApiError(null, "");
+            apiError = new ApiError("test", "");
 
             // Assert
             err.Message.Should().Be(key);
@@ -131,7 +172,7 @@ namespace Cloud.Core.Web.Tests
         }
 
         // Action context extension
-        [Theory, IsUnit]
+        [Theory]
         [InlineData("Test1")]
         [InlineData("Test2")]
         [InlineData("Test3")]
@@ -142,11 +183,11 @@ namespace Cloud.Core.Web.Tests
             serviceProviderMock.Setup(serviceProvider =>
                     serviceProvider.GetService(typeof(ILogger<ValidateModelAttribute>)))
                 .Returns(Mock.Of<ILogger<ValidateModelAttribute>>());
-            var httpContext = new DefaultHttpContext {RequestServices = serviceProviderMock.Object};
+            var httpContext = new DefaultHttpContext { RequestServices = serviceProviderMock.Object };
 
             var actionContext = new ActionContext(httpContext, new RouteData
             {
-                Values = {{"Action", actionName}}
+                Values = { { "Action", actionName } }
             }, new ActionDescriptor());
 
             // Act
@@ -156,7 +197,7 @@ namespace Cloud.Core.Web.Tests
             actionName.Should().Be(name);
         }
 
-        [Theory, IsUnit]
+        [Theory]
         [InlineData("Test1")]
         [InlineData("Test2")]
         [InlineData("Test3")]
@@ -167,11 +208,11 @@ namespace Cloud.Core.Web.Tests
             serviceProviderMock.Setup(serviceProvider =>
                     serviceProvider.GetService(typeof(ILogger<ValidateModelAttribute>)))
                 .Returns(Mock.Of<ILogger<ValidateModelAttribute>>());
-            var httpContext = new DefaultHttpContext {RequestServices = serviceProviderMock.Object};
+            var httpContext = new DefaultHttpContext { RequestServices = serviceProviderMock.Object };
 
             var actionContext = new ActionContext(httpContext, new RouteData
             {
-                Values = {{"Controller", controllerName}}
+                Values = { { "Controller", controllerName } }
             }, new ActionDescriptor());
 
             // Act
@@ -182,7 +223,7 @@ namespace Cloud.Core.Web.Tests
         }
 
         // Application builder extension
-        [Fact, IsUnit]
+        [Fact]
         public async Task Test_ApplicationBuilderExtensions_UseUnhandledExceptionMiddleware()
         {
             // Arrange
@@ -191,7 +232,7 @@ namespace Cloud.Core.Web.Tests
             serviceProviderMock.Setup(serviceProvider =>
                     serviceProvider.GetService(typeof(ILogger<ValidateModelAttribute>)))
                 .Returns(Mock.Of<ILogger<ValidateModelAttribute>>());
-            var httpContext = new DefaultHttpContext {RequestServices = serviceProviderMock.Object};
+            var httpContext = new DefaultHttpContext { RequestServices = serviceProviderMock.Object };
             var logRequestMiddleware = new UnhandledExceptionMiddleware(next: (innerHttpContext) => Task.FromResult(0),
                 logger: loggerMock.Object);
 
@@ -203,10 +244,69 @@ namespace Cloud.Core.Web.Tests
             httpContext.Response.StatusCode.Should().Be(500);
         }
 
-        [Fact, IsUnit]
+        // Application builder extension
+        [Fact]
+        public async Task Test_ApplicationBuilderExtensions_UseExceptionMiddleware_WithException()
+        {
+            // Arrange
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock.Setup(serviceProvider => serviceProvider.GetService(typeof(ILogger<ValidateModelAttribute>))).Returns(Mock.Of<ILogger<ValidateModelAttribute>>());
+            var httpContext = new DefaultHttpContext { RequestServices = serviceProviderMock.Object };
+            var logRequestMiddleware = new UnhandledExceptionMiddleware(next: (innerHttpContext) => throw new Exception(), logger: null);
+
+            // Act
+            await logRequestMiddleware.Invoke(httpContext);
+            await logRequestMiddleware.HandleExceptionAsync(httpContext, new Exception("Test"));
+
+            // Assert
+            httpContext.Response.StatusCode.Should().Be(500);
+        }
+
+        [Fact]
+        public async Task Test_ApplicationBuilderExtensions_UseExceptionMiddleware_HideSqlConnection()
+        {
+            // Arrange
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock.Setup(serviceProvider => serviceProvider.GetService(typeof(ILogger<ValidateModelAttribute>))).Returns(Mock.Of<ILogger<ValidateModelAttribute>>());
+            var httpContext = new DefaultHttpContext { RequestServices = serviceProviderMock.Object };
+            var logRequestMiddleware = new UnhandledExceptionMiddleware(next: (innerHttpContext) => throw new Exception("Cannot open server"), logger: null);
+
+            // Act
+            await logRequestMiddleware.Invoke(httpContext);
+            await logRequestMiddleware.HandleExceptionAsync(httpContext, new Exception("Test"));
+
+            // Assert
+            httpContext.Response.StatusCode.Should().Be(500);
+        }
+
+        [Fact]
+        public void Test_ValidationFailedResult_ToString()
+        {
+            var modelState = new ModelStateDictionary();
+            modelState.AddModelError("TestKey1", "TestValue1");
+            modelState.AddModelError("TestKey2", "TestValue2");
+
+            var res = new ValidationFailedResult(modelState);
+
+            var str = res.ToString();
+            str.Should().Be("Validation Error (400): Model could not be validated. TestKey1 - TestValue1, TestKey2 - TestValue2");
+        }
+
+        [Fact]
+        public void Test_ValidationFailedResult_ToStringEmpty()
+        {
+            var modelState = new ModelStateDictionary();
+
+            var res = new ValidationFailedResult(modelState);
+
+            var str = res.ToString();
+            str.Should().Be("Validation Error (400): Model could not be validated.");
+        }
+
+        [Fact]
         public async Task Test_ApplicationBuilderExtensions_AddHealthProbe()
         {
-            IWebHostBuilder webBuilder = WebHost.CreateDefaultBuilder(null).UseStartup<FakeStartup>();
+            var webBuilder = WebHost.CreateDefaultBuilder(null).UseStartup<FakeStartup>();
             webBuilder.UseUrls(FakeStartup.ADDRESS);
             var host = webBuilder.Build();
             host.Start();
@@ -218,7 +318,7 @@ namespace Cloud.Core.Web.Tests
         }
 
         // Http Context extension
-        [Fact, IsUnit]
+        [Fact]
         public void Test_HttpContextExtensions_GetRequestHeader()
         {
             // Arrange 
@@ -233,7 +333,7 @@ namespace Cloud.Core.Web.Tests
             emptyHeader.Should().BeNullOrEmpty();
         }
 
-        [Fact, IsUnit]
+        [Fact]
         public void Test_HttpContextExtensions_GetClaim()
         {
             // Arrange 
@@ -245,7 +345,7 @@ namespace Cloud.Core.Web.Tests
             actionContext.HttpContext.Response.HttpContext.GetClaimValue<string>("doesnotexist").Should().Be(null);
         }
 
-        [Fact, IsUnit]
+        [Fact]
         public void Test_HttpContextExtensions_GetConnectionInfo()
         {
             // Arrange 
@@ -265,13 +365,13 @@ namespace Cloud.Core.Web.Tests
     {
         public const string ADDRESS = "http://127.0.0.1:8085/";
         public FakeStartup(IConfiguration configuration) { }
-        
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient("default", client => client.BaseAddress = new Uri(ADDRESS));
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.AddHealthProbe();
             app.UseUnhandledExceptionMiddleware();

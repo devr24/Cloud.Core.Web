@@ -1,31 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Company></Company>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Company>Robert McCabe</Company>
     <IsPackable>true</IsPackable>
     <PackageId>Cloud.Core.Web</PackageId>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageTags>Cloud.Core.Web .net-Core Core Web</PackageTags>
     <PackageReleaseNotes />
-    <Description>Core Web functionality for Cloud web based projects.</Description>
-    <Copyright></Copyright>
-    <Version>1.0</Version>
-    <PackageIconUrl></PackageIconUrl>
+    <Description>Core Web functionality for Cloud Core web based projects.</Description>
+    <Copyright>Robert McCabe</Copyright>
+    <Version>3.1</Version>
+	<RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Web</RepositoryUrl>
+	<PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
+	<RepositoryType>Private</RepositoryType>
     <Authors>Robert McCabe</Authors>
+    <ProjectGuid>{CCF8ACCE-9886-4F9C-9303-0A1F54E86EA5}</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Csv\**" />
-    <EmbeddedResource Remove="Csv\**" />
-    <None Remove="Csv\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.2" />
+    <PackageReference Include="Cloud.Core" Version="2.1.3513.106" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.3" />
+    <PackageReference Include="Polly" Version="7.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

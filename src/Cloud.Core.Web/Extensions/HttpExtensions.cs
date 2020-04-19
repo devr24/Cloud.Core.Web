@@ -18,7 +18,7 @@
         public static string ToFormattedString(this HttpRequest req)
         {
             // Otherwise, build logging information about the request.
-            StringBuilder sb = new StringBuilder("Request information: ");
+            var sb = new StringBuilder("Request information: ");
 
             var refer = req.Headers["Referer"];
 
@@ -45,7 +45,7 @@
         public static string ToFormattedString(this HttpResponse res)
         {
             // Otherwise, build logging information about the request.
-            StringBuilder sb = new StringBuilder("Response information: ");
+            var sb = new StringBuilder("Response information: ");
 
             // Get the request information for logging to file.
             sb.AppendFormat("\nHeaders: {0}", string.Join(", ", res.Headers.Select(d =>

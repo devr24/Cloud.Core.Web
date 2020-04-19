@@ -1,13 +1,17 @@
-# **Cloud.Core.Web**  
+# **Cloud.Core.Web**  [![Build status](https://dev.azure.com/cloudcoreproject/CloudCore/_apis/build/status/Cloud.Core/Cloud.Core.Web_Package)](https://dev.azure.com/cloudcoreproject/CloudCore/_build/latest?definitionId=8) ![Code Coverage](https://cloud1core.blob.core.windows.net/codecoveragebadges/Cloud.Core.Web-LineCoverage.png) [![Cloud.Core.AppHost package in Cloud.Core feed in Azure Artifacts](https://feeds.dev.azure.com/cloudcoreproject/dfc5e3d0-a562-46fe-8070-7901ac8e64a0/_apis/public/Packaging/Feeds/8949198b-5c74-42af-9d30-e8c462acada6/Packages/dbfd6121-7f3d-451e-ae14-7fa76967892f/Badge)](https://dev.azure.com/cloudcoreproject/CloudCore/_packaging?_a=package&feed=8949198b-5c74-42af-9d30-e8c462acada6&package=dbfd6121-7f3d-451e-ae14-7fa76967892f&preferRelease=true)
 
+
+<div id="description">
 AspNetCore web extensions to be used in web based projects, such as MVC web sites and API's.  Adds additional features such as common error formatting,
 custom middleware and action filters/results.
+</div>
 
 ## Design
 The attribute for Validation (Validate) mentioned below is an example of AOP, where an attribute can be added to controller methods to perform some code before they are executed.  This is known as the 
 _Aspect Orientated Programming_ design pattern, as covered in the link:  
 
 - *AOP* - https://www.dotnetcurry.com/patterns-practices/1305/aspect-oriented-programming-aop-csharp-using-solid
+
 
 ## Usage
 
@@ -18,7 +22,7 @@ return a 500 error with the exception output in the response body (`InternalServ
 
 Configure the middleware as follows:
 
-```
+```csharp
 // In startup.cs wire up in Configure method...
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 {
@@ -27,6 +31,8 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 
     app.UseUnhandledExceptionMiddleware(); // Add custom middleware before UseMvc.
 
+    app.UseLocalization({ "en", "fr", "tl" });  // Add translations
+	
     app.UseMvc();
 }
 ```
@@ -39,7 +45,7 @@ model state dictionary.  The validation attribute `[Validate]` can be attached t
 
 Attach to controller:
 
-```
+```csharp
 [Validate]
 [Route("api/[controller]")]
 public class AccountController : Controller
@@ -50,7 +56,7 @@ public class AccountController : Controller
 
 Attach to controller method:
 
-```
+```csharp
 [Validate]
 [HttpPost]
 public IActionResult Create(RequestModel model)
@@ -65,7 +71,7 @@ public IActionResult Create(RequestModel model)
 
 Use this result when manually responding with validation failed result (consider using attribute above instead).
 
-```
+```csharp
 [HttpPost]
 public IActionResult Post(RequestModel model)
 {
@@ -82,7 +88,7 @@ public IActionResult Post(RequestModel model)
 
 Use this result when manually responding with internal server error (consider using general exception middleware above instead).
 
-```
+```csharp
 [HttpPost]
 public IActionResult Post(RequestModel model)
 {
@@ -102,8 +108,8 @@ public IActionResult Post(RequestModel model)
 
 
 ## Test Coverage
-A threshold will be added to this package to ensure the test coverage is above 80% for statements, branches, functions and lines.  If it's not above the required threshold 
-(threshold that will be implemented on ALL of the new core repositories going forward), then the build will fail.
+A threshold will be added to this package to ensure the test coverage is above 80% for branches, functions and lines.  If it's not above the required threshold 
+(threshold that will be implemented on ALL of the core repositories to gurantee a satisfactory level of testing), then the build will fail.
 
 ## Compatibility
 This package has has been written in .net Standard and can be therefore be referenced from a .net Core or .net Framework application. The advantage of utilising from a .net Core application, 
@@ -111,14 +117,17 @@ is that it can be deployed and run on a number of host operating systems, such a
 Windows (or Linux using Mono).
  
 ## Setup
-This package requires the .net Core 2.1 SDK, it can be downloaded here: 
-https://www.microsoft.com/net/download/dotnet-core/2.1
+This package is built using .net Standard 2.1 and requires the .net Core 3.1 SDK, it can be downloaded here: 
+https://www.microsoft.com/net/download/dotnet-core/
 
 IDE of Visual Studio or Visual Studio Code, can be downloaded here:
 https://visualstudio.microsoft.com/downloads/
 
 ## How to access this package
-All of the Cloud.Core.* packages are published to our internal NuGet feed.  To consume this on your local development machine, please add the following feed to your feed sources in Visual Studio:
-TBC
-
+All of the Cloud.Core.* packages are published to a internal NuGet feed.  To consume this on your local development machine, please add the following feed to your feed sources in Visual Studio:
+https://pkgs.dev.azure.com/cloudcoreproject/CloudCore/_packaging/Cloud.Core/nuget/v3/index.json
+ 
 For help setting up, follow this article: https://docs.microsoft.com/en-us/vsts/package/nuget/consume?view=vsts
+
+
+<img src="https://cloud1core.blob.core.windows.net/icons/cloud_core_small.PNG" />

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
@@ -54,6 +55,7 @@
         /// <param name="versions">The versions.</param>
         /// <param name="additionalConfig">The additional configuration.</param>
         /// <returns>IServiceCollection.</returns>
+        [ExcludeFromCodeCoverage] // Need to complete the testing from this.
         public static IServiceCollection AddSwaggerWithVersions(this IServiceCollection services, double[] versions, Action<SwaggerGenOptions> additionalConfig = null)
         {
             var latestVersion = versions.Max();

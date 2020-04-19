@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Net.Http.Headers;
     using System.Reflection;
@@ -13,6 +14,7 @@
     /// Allow web requests to accept Csv formatted input (instead of json).  Useful for Csv import.
     /// </summary>
     /// <seealso cref="InputFormatter" />
+    [ExcludeFromCodeCoverage] // Need to test this later
     public class CsvInputFormatter : InputFormatter
     {
         private readonly CsvFormatterOptions _options;

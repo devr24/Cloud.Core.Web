@@ -28,6 +28,11 @@
 
         protected override bool CanWriteType(Type type)
         {
+            return CanWriteTypeInternal(type);
+        }
+
+        public bool CanWriteTypeInternal(Type type)
+        {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 

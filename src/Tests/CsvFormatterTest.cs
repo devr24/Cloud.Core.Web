@@ -79,6 +79,8 @@ namespace Cloud.Core.Web.Tests
             instance.CanWriteResult(mockContext).Should().BeTrue();
             instance.SupportedMediaTypes.Should().BeEquivalentTo(new MediaTypeCollection() { "text/csv" });
 
+            Assert.Throws<ArgumentNullException>(() => instance.CanWriteTypeInternal(null));
+            
             StreamReader reader = new StreamReader(mockContext.HttpContext.Response.Body);
             string strResponse = reader.ReadToEnd();
             strResponse.Should().Be(content);

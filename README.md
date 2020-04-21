@@ -1,4 +1,5 @@
-# **Cloud.Core.Web**  [![Build status](https://dev.azure.com/cloudcoreproject/CloudCore/_apis/build/status/Cloud.Core/Cloud.Core.Web_Package)](https://dev.azure.com/cloudcoreproject/CloudCore/_build/latest?definitionId=8) ![Code Coverage](https://cloud1core.blob.core.windows.net/codecoveragebadges/Cloud.Core.Web-LineCoverage.png) [![Cloud.Core.Web package in Cloud.Core feed in Azure Artifacts](https://feeds.dev.azure.com/cloudcoreproject/dfc5e3d0-a562-46fe-8070-7901ac8e64a0/_apis/public/Packaging/Feeds/8949198b-5c74-42af-9d30-e8c462acada6/Packages/c33811e9-eb52-49cd-ae98-dc77a8e80a0e/Badge)](https://dev.azure.com/cloudcoreproject/CloudCore/_packaging?_a=package&feed=8949198b-5c74-42af-9d30-e8c462acada6&package=c33811e9-eb52-49cd-ae98-dc77a8e80a0e&preferRelease=true)
+# **Cloud.Core.Web**  
+[![Build status](https://dev.azure.com/cloudcoreproject/CloudCore/_apis/build/status/Cloud.Core%20Packages/Cloud.Core.Web_Package)](https://dev.azure.com/cloudcoreproject/CloudCore/_build/latest?definitionId=8) ![Code Coverage](https://cloud1core.blob.core.windows.net/codecoveragebadges/Cloud.Core.Web-LineCoverage.png) [![Cloud.Core.Web package in Cloud.Core feed in Azure Artifacts](https://feeds.dev.azure.com/cloudcoreproject/dfc5e3d0-a562-46fe-8070-7901ac8e64a0/_apis/public/Packaging/Feeds/8949198b-5c74-42af-9d30-e8c462acada6/Packages/c33811e9-eb52-49cd-ae98-dc77a8e80a0e/Badge)](https://dev.azure.com/cloudcoreproject/CloudCore/_packaging?_a=package&feed=8949198b-5c74-42af-9d30-e8c462acada6&package=c33811e9-eb52-49cd-ae98-dc77a8e80a0e&preferRelease=true)
 
 
 
@@ -24,6 +25,29 @@ return a 500 error with the exception output in the response body (`InternalServ
 Configure the middleware as follows:
 
 ```csharp
+// sample startup.cs
+
+private readonly double[] _appVersions = { 1.0 };
+private readonly string[] _supportedCultures = { "en" };
+	
+// Configure services...
+public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    
+    // Add swagger with version support.
+    services.AddSwaggerWithVersions(_appVersions, c => c.IncludeXmlComments("Cloud.App.SampleWebAPI.xml"));
+
+    // Add string translations (localizations) support.
+    services.AddLocalization(o =>
+    {
+        // Translations exist in Resources folder.
+        o.ResourcesPath = "Resources";  // Path to language resource files.
+    });
+
+    ...
+}
+
 // In startup.cs wire up in Configure method...
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 {
@@ -32,7 +56,9 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 
     app.UseUnhandledExceptionMiddleware(); // Add custom middleware before UseMvc.
 
-    app.UseLocalization({ "en", "fr", "tl" });  // Add translations
+    app.UseSwaggerWithVersion(_appVersions, swaggerJsonPathPrefix);  // Add swagger along with versions.
+	    
+    app.UseLocalization({ "en", "fr", "tl" });  // Add translations.
 	
     app.UseMvc();
 }
@@ -76,11 +102,21 @@ Use this result when manually responding with validation failed result (consider
 [HttpPost]
 public IActionResult Post(RequestModel model)
 {
+    // Validation using model state...
     if (ModelState.IsValid == false) 
-	{
-        // Returns 400 status with ApiError as response body.
+    {
+        // Returns 400 status with ApiErrorResult as response body.
         return ValidationFailedResult(ModelState);
     }
+    
+    // Custom validation check...
+    if (model.SomeProp == false)
+    {
+        // Add localised error, 400 returned with ApiErrorResult as body.
+        ModelState.AddModelError(_localizer["SomeErr.Title"], _localizer["SomeErr.Reason"]);
+	return BadRequest(new ApiErrorResult(ModelState));
+    }
+    
     // Continue normal execution when ModelState is valid...
 }
 ```
@@ -99,7 +135,7 @@ public IActionResult Post(RequestModel model)
     }
     catch(Exception ex)
     {
-        // Returns 500 status with ApiError as response body.
+        // Returns 500 status with ApiErrorResult as response body.
         return InternalServerErrorResult(ex);
     }
 	

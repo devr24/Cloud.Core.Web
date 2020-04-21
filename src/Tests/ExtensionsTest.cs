@@ -192,7 +192,7 @@ namespace Cloud.Core.Web.Tests
             nameFilter.FilterData.Name.Should().Be("name");
 
             var result = queryObject.PerformSearch(nameFilter).GetAwaiter().GetResult();
-
+             
             result.FilterResults.Should().HaveCount(50);
         }
 

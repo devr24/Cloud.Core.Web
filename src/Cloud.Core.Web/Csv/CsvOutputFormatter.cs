@@ -32,18 +32,7 @@
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            return IsTypeOfIEnumerable(type);
-        }
-
-        private bool IsTypeOfIEnumerable(Type type)
-        {
-            foreach (var interfaceType in type.GetInterfaces())
-            {
-                if (interfaceType == typeof(IList))
-                    return true;
-            }
-
-            return false;
+            return type.IsEnumerableType();
         }
 
         public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context)
@@ -65,7 +54,7 @@
             var stringWriter = new StringWriter();
 
             if (_options.UseSingleLineHeaderInCsv)
-                stringWriter.WriteLine(string.Join<string>(_options.CsvDelimiter, itemType.GetProperties().Select(x => x.Name)));
+                await stringWriter.WriteLineAsync(string.Join<string>(_options.CsvDelimiter, itemType.GetProperties().Select(x => x.Name)));
 
             foreach (var obj in (IEnumerable<object>)context.Object)
             {
@@ -79,11 +68,11 @@
                     {
                         var actualValue = val.Value.ToString();
 
-                        //Check if the value contans a comma and place it in quotes if so
+                        // Check if the value contains a comma and place it in quotes if so
                         if (actualValue.Contains(","))
                             actualValue = string.Concat("\"", actualValue, "\"");
 
-                        //Replace any \r or \n special characters from a new line with a space
+                        // Replace any \r or \n special characters from a new line with a space
                         if (actualValue.Contains("\r"))
                             actualValue = actualValue.Replace("\r", " ");
 
@@ -96,7 +85,7 @@
                         valueLine = string.Concat(valueLine, string.Empty, _options.CsvDelimiter);
                 }
 
-                stringWriter.WriteLine(valueLine.TrimEnd(_options.CsvDelimiter.ToCharArray()));
+                await stringWriter.WriteLineAsync(valueLine.TrimEnd(_options.CsvDelimiter.ToCharArray()));
             }
 
             var streamWriter = new StreamWriter(context.HttpContext.Response.Body);

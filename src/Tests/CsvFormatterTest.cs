@@ -78,8 +78,6 @@ namespace Cloud.Core.Web.Tests
             instance.ContentType.Should().Be("text/csv");
             instance.CanWriteResult(mockContext).Should().BeTrue();
             instance.SupportedMediaTypes.Should().BeEquivalentTo(new MediaTypeCollection() { "text/csv" });
-            instance.IsTypeOfIEnumerable(new List<string>().GetType()).Should().BeTrue();
-            instance.IsTypeOfIEnumerable(new TestCsvParsed().GetType()).Should().BeFalse();
 
             StreamReader reader = new StreamReader(mockContext.HttpContext.Response.Body);
             string strResponse = reader.ReadToEnd();

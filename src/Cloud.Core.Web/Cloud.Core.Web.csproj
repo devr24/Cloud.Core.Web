@@ -9,11 +9,11 @@
     <PackageTags>Cloud.Core.Web .net-Core Core Web</PackageTags>
     <PackageReleaseNotes />
     <Description>Core Web functionality for Cloud Core web based projects.</Description>
-    <Copyright>Robert McCabe</Copyright>
+    <Copyright>Aylesbury Solutions Ltd</Copyright>
     <Version>3.1</Version>
-	<RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Web</RepositoryUrl>
-	<PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
-	<RepositoryType>Private</RepositoryType>
+    <RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Web</RepositoryUrl>
+    <PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
+    <RepositoryType>Private</RepositoryType>
     <Authors>Robert McCabe</Authors>
     <ProjectGuid>{CCF8ACCE-9886-4F9C-9303-0A1F54E86EA5}</ProjectGuid>
   </PropertyGroup>

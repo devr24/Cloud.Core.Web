@@ -187,6 +187,9 @@ namespace Cloud.Core.Web.Tests
 
             var nameFilter = new SearchFilter<NameFilter>();
             nameFilter.PageSize = 50;
+            nameFilter.FilterData = new NameFilter("name");
+            nameFilter.FilterData.Should().NotBeNull();
+            nameFilter.FilterData.Name.Should().Be("name");
 
             var result = queryObject.PerformSearch(nameFilter).GetAwaiter().GetResult();
 

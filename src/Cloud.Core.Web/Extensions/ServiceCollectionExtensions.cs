@@ -14,7 +14,7 @@
     using Swashbuckle.AspNetCore.SwaggerUI;
 
     /// <summary>
-    /// Class ServiceCollectionExtensions.
+    /// Class ServiceCollection extensions.
     /// </summary>
     public static class ServiceCollectionExtensions
     {
@@ -34,7 +34,6 @@
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-
                 // Run additional config method if set.
                 additionalConfig?.Invoke(c);
 
@@ -120,9 +119,9 @@
                     }
                     if (actionApiVersionModel.DeclaredApiVersions.Any())
                     {
-                        return actionApiVersionModel.DeclaredApiVersions.Any(v => $"v{v.ToString()}" == docName);
+                        return actionApiVersionModel.DeclaredApiVersions.Any(v => $"v{v}" == docName);
                     }
-                    return actionApiVersionModel.ImplementedApiVersions.Any(v => $"v{v.ToString()}" == docName);
+                    return actionApiVersionModel.ImplementedApiVersions.Any(v => $"v{v}" == docName);
                 });
             });
 

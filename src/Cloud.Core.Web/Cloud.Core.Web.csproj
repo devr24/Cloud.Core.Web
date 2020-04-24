@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Company>Robert McCabe</Company>
+    <Company>Aylesbury Solutions Ltd</Company>
     <IsPackable>true</IsPackable>
     <PackageId>Cloud.Core.Web</PackageId>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -16,10 +16,11 @@
     <RepositoryType>Private</RepositoryType>
     <Authors>Robert McCabe</Authors>
     <ProjectGuid>{CCF8ACCE-9886-4F9C-9303-0A1F54E86EA5}</ProjectGuid>
+    <DocumentationFile>Cloud.Core.Web.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cloud.Core" Version="3.1.3515.203" />
+    <PackageReference Include="Cloud.Core" Version="3.1.3517.260" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />

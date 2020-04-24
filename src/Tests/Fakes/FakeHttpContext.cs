@@ -7,10 +7,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Moq;
 
-namespace Cloud.Core.Web.Tests
+namespace Cloud.Core.Web.Tests.Fakes
 {
-    public class HttpContextMock
+    /// <summary>
+    /// Class Fake Http Context.
+    /// </summary>
+    public class FakeHttpContext
     {
+        /// <summary>
+        /// Gets the request HTTP context.
+        /// </summary>
+        /// <param name="contentBytes">The content bytes.</param>
+        /// <param name="contentType">Type of the content.</param>
+        /// <returns>HttpContext fake.</returns>
         public static HttpContext GetRequestHttpContext(byte[] contentBytes, string contentType = "application/json")
         {
             ClaimsPrincipal user;
@@ -44,6 +53,13 @@ namespace Cloud.Core.Web.Tests
             return httpContext.Object;
         }
 
+        /// <summary>
+        /// Gets the response HTTP context.
+        /// </summary>
+        /// <param name="contentBytes">The content bytes.</param>
+        /// <param name="contentType">Type of the content.</param>
+        /// <param name="status">The status.</param>
+        /// <returns>HttpContext fake.</returns>
         public static HttpContext GetResponseHttpContext(byte[] contentBytes, string contentType = "application/json", HttpStatusCode status = HttpStatusCode.OK)
         {
             var response = new Mock<Microsoft.AspNetCore.Http.HttpResponse>();

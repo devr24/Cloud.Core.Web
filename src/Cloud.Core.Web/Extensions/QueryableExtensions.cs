@@ -7,7 +7,7 @@
     using Cloud.Core.Web.Filters;
 
     /// <summary>
-    /// QueryableExtensions
+    /// Queryable extensions class.
     /// </summary>
     public static class QueryableExtensions
     {
@@ -26,19 +26,24 @@
         { 
             // Parameter expression.
             var param = Expression.Parameter(typeof(T), "p");
+
             // List of properties of this type.
             var properties = typeof(T).GetProperties(AllPropertiesFlag);
+            
             // Find property that matches the sort field name.
             var prop = properties.FirstOrDefault(p => p.Name == sortField);
             // If property is not found, then default to first property for sorting.
             if (prop == null)
                 prop = properties[0];
+            
             // Property for lamda expression.
             var expProp = Expression.Property(param, prop);
             var expLamda = Expression.Lambda(expProp, param);
+            
             // Set ascending / descending in query.
             string method = ascending ? "OrderBy" : "OrderByDescending";
             Type[] types = new Type[] { query.ElementType, expLamda.Body.Type };
+            
             // Create the query and return.
             var mce = Expression.Call(typeof(Queryable), method, types, query.Expression, expLamda);
             return query.Provider.CreateQuery<T>(mce) as IOrderedQueryable<T>;
@@ -57,19 +62,25 @@
         {
             // Parameter expression.
             var param = Expression.Parameter(typeof(T), "p");
+            
             // List of properties of this type.
             var properties = typeof(T).GetProperties(AllPropertiesFlag);
+            
             // Find property that matches the sort field name.
             var prop = properties.FirstOrDefault(p => p.Name == sortField);
+            
             // If property is not found, then default to first property for sorting.
             if (prop == null)
                 prop = properties[0];
+            
             // Property for lamda expression.
             var expProp = Expression.Property(param, prop);
             var expLamda = Expression.Lambda(expProp, param);
+            
             // Set ascending / descending in query.
             string method = ascending ? "ThenBy" : "ThenByDescending";
             Type[] types = new Type[] { query.ElementType, expLamda.Body.Type };
+            
             // Create the query and return.
             var mce = Expression.Call(typeof(Queryable), method, types, query.Expression, expLamda);
             return query.Provider.CreateQuery<T>(mce) as IOrderedQueryable<T>;
@@ -90,6 +101,7 @@
         {
             return !ascending ? source.OrderByDescending(keySelector) : source.OrderBy(keySelector);
         }
+
         /// <summary>
         /// OrderByWithDirection
         /// </summary>
@@ -105,6 +117,7 @@
         {
             return !ascending ? source.OrderByDescending(keySelector) : source.OrderBy(keySelector);
         }
+
         /// <summary>
         /// Performs the search on the IQueryable and returns the results as a SearchResult.
         /// </summary>
@@ -153,11 +166,16 @@
                 
             // Don't allow page size to be greater than 100.
             if (filter.PageSize > maxAllowedPageSize)
+            {
                 filter.PageSize = maxAllowedPageSize;
+            }
 
             // PageSize of 0 indicates all records.
             if (filter.PageSize == 0)
+            {
                 filter.PageSize = totalRecords;
+            }
+
             query = query.Skip(filter.PageSize * (filter.PageNumber == 1 ? 0 : filter.PageNumber - 1)).Take(filter.PageSize);
 
             // Perform select on the table and map the results.

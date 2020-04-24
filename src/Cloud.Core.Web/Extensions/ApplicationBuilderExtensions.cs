@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.AspNetCore.Builder
 {
     using Http;
-    using Cloud.Core.Web.Middlewares;
+    using Cloud.Core.Web.Middleware;
     using System.Collections.Generic;
     using Localization;
     using System.Globalization;
@@ -9,7 +9,7 @@
     using System.Linq;
 
     /// <summary>
-    /// Extension methods for IApplicationBuilder
+    /// Extension methods for IApplicationBuilder.
     /// </summary>
     public static class ApplicationBuilderExtensions
     {
@@ -58,16 +58,20 @@
                 cultures.Add(new CultureInfo(testLanguageCultureCode));
             }
 
-            // Middleware to gurantee correct culture info is set when TL (test language) is sent through.
+            // Middleware to guarantee correct culture info is set when TL (test language) is sent through.
             builder.Use(async (context, next) =>
             {
                 var culture = context.Request.Query["culture"];
 
                 if (culture.IsNullOrDefault())
+                {
                     culture = context.Request.Headers["Accept-Language"];
+                }
 
                 if (culture == "tl")
+                {
                     context.Request.Headers["Accept-Language"] = testLanguageCultureCode;
+                }
 
                 // Call the next delegate/middleware in the pipeline
                 await next();

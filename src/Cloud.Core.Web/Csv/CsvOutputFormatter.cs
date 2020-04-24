@@ -17,8 +17,17 @@
     {
         private readonly CsvFormatterOptions _options;
 
-        public string ContentType { get; private set; }
+        /// <summary>
+        /// Gets the type of the content.
+        /// </summary>
+        /// <value>The type of the content.</value>
+        public string ContentType { get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CsvOutputFormatter"/> class.
+        /// </summary>
+        /// <param name="csvFormatterOptions">The CSV formatter options.</param>
+        /// <exception cref="ArgumentNullException">csvFormatterOptions - Formatter options must be set</exception>
         public CsvOutputFormatter(CsvFormatterOptions csvFormatterOptions)
         {
             ContentType = "text/csv";
@@ -26,11 +35,22 @@
             _options = csvFormatterOptions ?? throw new ArgumentNullException(nameof(csvFormatterOptions), "Formatter options must be set");
         }
 
+        /// <summary>
+        /// Returns a value indicating whether or not the given type can be written by this serializer.
+        /// </summary>
+        /// <param name="type">The object type.</param>
+        /// <returns><c>true</c> if the type can be written, otherwise <c>false</c>.</returns>
         protected override bool CanWriteType(Type type)
         {
             return CanWriteTypeInternal(type);
         }
 
+        /// <summary>
+        /// Determines whether this instance [can write type internal] the specified type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns><c>true</c> if this instance [can write type internal] the specified type; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException">type</exception>
         public bool CanWriteTypeInternal(Type type)
         {
             if (type == null)
@@ -39,26 +59,34 @@
             return type.IsEnumerableType();
         }
 
+        /// <summary>
+        /// write response body as an asynchronous operation.
+        /// </summary>
+        /// <param name="context">The formatter context associated with the call.</param>
+        /// <returns>A task which can write the response body.</returns>
+        /// <exception cref="NotSupportedException">Object type must be enumerable</exception>
         public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context)
         {
             if (context.HttpContext.Response.StatusCode != (int)HttpStatusCode.OK)
+            {
                 return;
+            }
 
             var type = context.Object.GetType();
-            Type itemType;
-
-            if (type.GetGenericArguments().Length > 0)
-                itemType = type.GetGenericArguments()[0];
-            else
-                itemType = type.GetElementType();
+            var itemType = type.GetGenericArguments().Length > 0 ? type.GetGenericArguments()[0] : type.GetElementType();
 
             if (itemType == null)
+            {
                 throw new NotSupportedException("Object type must be enumerable");
+            }
 
             var stringWriter = new StringWriter();
 
             if (_options.UseSingleLineHeaderInCsv)
-                await stringWriter.WriteLineAsync(string.Join<string>(_options.CsvDelimiter, itemType.GetProperties().Select(x => x.Name)));
+            {
+                await stringWriter.WriteLineAsync(string.Join<string>(_options.CsvDelimiter,
+                    itemType.GetProperties().Select(x => x.Name)));
+            }
 
             foreach (var obj in (IEnumerable<object>)context.Object)
             {
@@ -98,10 +126,21 @@
         }
     }
 
+    /// <summary>
+    /// Class containing Csv Formatter Options.
+    /// </summary>
     public class CsvFormatterOptions
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether [use single line header in CSV].
+        /// </summary>
+        /// <value><c>true</c> if [use single line header in CSV]; otherwise, <c>false</c>.</value>
         public bool UseSingleLineHeaderInCsv { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets the CSV delimiter.
+        /// </summary>
+        /// <value>The CSV delimiter.</value>
         public string CsvDelimiter { get; set; } = ";";
     }
 }

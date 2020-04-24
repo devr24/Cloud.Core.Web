@@ -18,7 +18,7 @@
         {
             return actionDescriptor?.Properties
                 .Where((kvp) => (Type)kvp.Key == typeof(ApiVersionModel))
-              .Select(kvp => kvp.Value as ApiVersionModel).FirstOrDefault();
+                .Select(kvp => kvp.Value as ApiVersionModel).FirstOrDefault();
         }
     }
 }

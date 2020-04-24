@@ -24,7 +24,7 @@
                     return (T)Convert.ChangeType(claim.Value, typeof(T));
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -57,10 +57,12 @@
         public static string GetUserId(this HttpContext context)
         {
             if (context.User == null)
+            {
                 return null;
+            }
 
-            var userId = context.User.FindFirst(
-                x => x.Type.Equals("http://schemas.microsoft.com/identity/claims/objectidentifier") || x.Type.Equals("oid")).Value;
+            var userId = context.User
+                .FindFirst(x => x.Type.Equals("http://schemas.microsoft.com/identity/claims/objectidentifier") || x.Type.Equals("oid")).Value;
 
             // Default.
             return userId;

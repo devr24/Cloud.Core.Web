@@ -23,19 +23,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 using Cloud.Core.Web.Attributes;
-using Cloud.Core.Web.Middlewares;
+using Cloud.Core.Web.Middleware;
+using Cloud.Core.Web.Tests.Fakes;
 
 namespace Cloud.Core.Web.Tests
 {
     [IsUnit]
-    public class CoreWebTest
+    public class CoreWebTests
     {
-        // Http Extension
+        /// <summary>Check the Request to string conversion returns the expected result!</summary>
         [Fact]
         public void Test_HttpExtensions_RequestToFormattedString()
         {
             // Arrange
-            var fake = HttpContextMock.GetRequestHttpContext(Encoding.UTF8.GetBytes("test"));
+            var fake = FakeHttpContext.GetRequestHttpContext(Encoding.UTF8.GetBytes("test"));
 
             // Act
             var str = fake.Request.ToFormattedString();
@@ -45,11 +46,12 @@ namespace Cloud.Core.Web.Tests
             str.IndexOf("Hostname: localhost", StringComparison.InvariantCulture).Should().BeGreaterThan(0);
         }
 
+        /// <summary>Check the Response to string conversion returns the expected result!</summary>
         [Fact]
         public void Test_HttpExtensions_ResponseToFormattedString()
         {
             // Arrange
-            var fake = HttpContextMock.GetResponseHttpContext(Encoding.UTF8.GetBytes("test"));
+            var fake = FakeHttpContext.GetResponseHttpContext(Encoding.UTF8.GetBytes("test"));
 
             // Act
             var str = fake.Response.ToFormattedString();
@@ -59,7 +61,9 @@ namespace Cloud.Core.Web.Tests
             str.IndexOf("Authenticated: False", StringComparison.InvariantCulture).Should().BeGreaterThan(0);
         }
 
-        // Validate Attribute
+        /// <summary>Ensures the validate model attribute is invoked as expected.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="message">The message.</param>
         [Theory]
         [InlineData("test", "test cannot be tested")]
         [InlineData("attribute", "this attribute is invalid")]
@@ -96,6 +100,9 @@ namespace Cloud.Core.Web.Tests
             errorResult.Errors[0].Field.Should().Be(key);
         }
 
+        /// <summary>Ensure validation attribute is invoked as expected and logs exception as expected.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="message">The message.</param>
         [Theory]
         [InlineData("test", "test cannot be tested")]
         [InlineData("attribute", "this attribute is invalid")]
@@ -132,6 +139,9 @@ namespace Cloud.Core.Web.Tests
             errorResult.Errors[0].Field.Should().Be(key);
         }
 
+        /// <summary>Ensure Api Error Result is returned as expected.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="message">The message.</param>
         [Theory]
         [InlineData("test", "test cannot be tested")]
         [InlineData("attribute", "this attribute is invalid")]
@@ -149,9 +159,9 @@ namespace Cloud.Core.Web.Tests
             var servErr = new InternalServerErrorResult(new Exception(message));
             var res = httpContext.Response;
             var req = httpContext.Request;
-            var apiError = new ApiError("", "");
-            apiError = new ApiError(null, "");
-            apiError = new ApiError("test", "");
+            var apiError = new ApiErrorMessage("", "");
+            apiError = new ApiErrorMessage(null, "");
+            apiError = new ApiErrorMessage("test", "");
 
             // Assert
             err.Message.Should().Be(key);
@@ -171,7 +181,8 @@ namespace Cloud.Core.Web.Tests
             req.ToFormattedString().Length.Should().BeGreaterThan(0);
         }
 
-        // Action context extension
+        /// <summary>Ensure ActionName is set as expected.</summary>
+        /// <param name="actionName">Name of the action.</param>
         [Theory]
         [InlineData("Test1")]
         [InlineData("Test2")]
@@ -197,6 +208,8 @@ namespace Cloud.Core.Web.Tests
             actionName.Should().Be(name);
         }
 
+        /// <summary>Ensure ControllerName is set as expected.</summary>
+        /// <param name="controllerName">Name of the controller.</param>
         [Theory]
         [InlineData("Test1")]
         [InlineData("Test2")]
@@ -222,7 +235,7 @@ namespace Cloud.Core.Web.Tests
             controllerName.Should().Be(name.Replace("Controller", string.Empty));
         }
 
-        // Application builder extension
+        /// <summary>Ensure the unhandled exception middleware intercepts unhandled exceptions and returns ApiExceptionResult when validation result is returned.</summary>
         [Fact]
         public async Task Test_ApplicationBuilderExtensions_UseUnhandledExceptionMiddleware()
         {
@@ -244,7 +257,7 @@ namespace Cloud.Core.Web.Tests
             httpContext.Response.StatusCode.Should().Be(500);
         }
 
-        // Application builder extension
+        /// <summary>Ensure the unhandled exception middleware intercepts unhandled exceptions and returns ApiExceptionResult when exception is caught.</summary>
         [Fact]
         public async Task Test_ApplicationBuilderExtensions_UseExceptionMiddleware_WithException()
         {
@@ -262,6 +275,7 @@ namespace Cloud.Core.Web.Tests
             httpContext.Response.StatusCode.Should().Be(500);
         }
 
+        /// <summary>Ensure sql connection info is not returned when unhandled middleware intercepts an unhandled exception.</summary>
         [Fact]
         public async Task Test_ApplicationBuilderExtensions_UseExceptionMiddleware_HideSqlConnection()
         {
@@ -279,50 +293,62 @@ namespace Cloud.Core.Web.Tests
             httpContext.Response.StatusCode.Should().Be(500);
         }
 
+        /// <summary>Check validation failed result returns the correct string.</summary>
         [Fact]
         public void Test_ValidationFailedResult_ToString()
         {
+            // Arrange
             var modelState = new ModelStateDictionary();
             modelState.AddModelError("TestKey1", "TestValue1");
             modelState.AddModelError("TestKey2", "TestValue2");
 
+            // Act
             var res = new ValidationFailedResult(modelState);
-
             var str = res.ToString();
+
+            // Assert
             str.Should().Be("Validation Error (400): Model could not be validated. TestKey1 - TestValue1, TestKey2 - TestValue2");
         }
 
+        /// <summary>Ensure validation failed result string when result is empty.</summary>
         [Fact]
         public void Test_ValidationFailedResult_ToStringEmpty()
         {
+            // Arrange
             var modelState = new ModelStateDictionary();
 
+            // Act
             var res = new ValidationFailedResult(modelState);
-
             var str = res.ToString();
+
+            // Assert
             str.Should().Be("Validation Error (400): Model could not be validated.");
         }
 
+        /// <summary>Check the health probe is added to the web host successfully.</summary>
         [Fact]
         public async Task Test_ApplicationBuilderExtensions_AddHealthProbe()
         {
+            // Arrange
             var webBuilder = WebHost.CreateDefaultBuilder(null).UseStartup<FakeStartup>();
             webBuilder.UseUrls(FakeStartup.ADDRESS);
             var host = webBuilder.Build();
             host.Start();
 
+            // Act
             var httpClient = host.Services.GetService<IHttpClientFactory>();
-
             var res = await httpClient.CreateClient("default").GetAsync("probe");
+
+            // Assert
             res.StatusCode.Should().Be(200);
         }
 
-        // Http Context extension
+        /// <summary>Ensure a specific header can be gathered from the request.</summary>
         [Fact]
         public void Test_HttpContextExtensions_GetRequestHeader()
         {
             // Arrange 
-            var fakeRequest = HttpContextMock.GetRequestHttpContext(Encoding.UTF8.GetBytes("test"));
+            var fakeRequest = FakeHttpContext.GetRequestHttpContext(Encoding.UTF8.GetBytes("test"));
 
             // Act
             var header = fakeRequest.GetRequestHeader("testKey");
@@ -333,23 +359,25 @@ namespace Cloud.Core.Web.Tests
             emptyHeader.Should().BeNullOrEmpty();
         }
 
+        /// <summary>Ensure claims can be gathered from the request.</summary>
         [Fact]
         public void Test_HttpContextExtensions_GetClaim()
         {
             // Arrange 
-            var fakeRequest = HttpContextMock.GetResponseHttpContext(Encoding.UTF8.GetBytes("test"));
+            var fakeRequest = FakeHttpContext.GetResponseHttpContext(Encoding.UTF8.GetBytes("test"));
             var actionContext = new ActionContext(fakeRequest, new RouteData(), new ActionDescriptor());
 
-            // Assert
+            // Act/Assert
             actionContext.HttpContext.Response.HttpContext.GetClaimValue<string>("testKey").Should().Be("testVal");
             actionContext.HttpContext.Response.HttpContext.GetClaimValue<string>("doesnotexist").Should().Be(null);
         }
 
+        /// <summary>Ensure connection info can be gathered from the response.</summary>
         [Fact]
         public void Test_HttpContextExtensions_GetConnectionInfo()
         {
             // Arrange 
-            var fakeRequest = HttpContextMock.GetResponseHttpContext(Encoding.UTF8.GetBytes("test"));
+            var fakeRequest = FakeHttpContext.GetResponseHttpContext(Encoding.UTF8.GetBytes("test"));
             var actionContext = new ActionContext(fakeRequest, new RouteData(), new ActionDescriptor());
             var defaultAddress = IPAddress.Parse("127.0.0.1").ToString();
 

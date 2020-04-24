@@ -25,7 +25,7 @@
         /// <value>
         /// The errors.
         /// </value>
-        public List<ApiError> Errors { get; }
+        public List<ApiErrorMessage> Errors { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiErrorResult" /> class with model state.
@@ -36,7 +36,7 @@
         {
             Message = defaultMessage; // Default validation error message.
             Errors = modelState.Keys
-                .SelectMany(key => modelState[key].Errors.Select(x => new ApiError(key, x.ErrorMessage)))
+                .SelectMany(key => modelState[key].Errors.Select(x => new ApiErrorMessage(key, x.ErrorMessage)))
                 .ToList();
         }
 
@@ -48,7 +48,7 @@
         public ApiErrorResult(Exception ex, string defaultMessage)
         {
             Message = defaultMessage;
-            Errors = new List<ApiError>{ new ApiError(ex.Message) };
+            Errors = new List<ApiErrorMessage>{ new ApiErrorMessage(ex.Message) };
         }
 
         /// <summary>
@@ -58,20 +58,20 @@
         public ApiErrorResult(string errorDescription)
         {
             Message = errorDescription;
-            Errors = new List<ApiError> { new ApiError(errorDescription) };
+            Errors = new List<ApiErrorMessage> { new ApiErrorMessage(errorDescription) };
         }
     }
 
     /// <summary>
     /// Api error containing a field and message associated with the field.
     /// </summary>
-    public class ApiError
+    public class ApiErrorMessage
     {
         /// <summary>
         /// Object can only be constructed internally - to clarify that users should create the
-        /// ApiErrorResult object, not the ApiError object.
+        /// ApiErrorResult object, not the ApiErrorMessage object.
         /// </summary>
-        internal ApiError() { }
+        internal ApiErrorMessage() { }
 
         /// <summary>
         /// Gets the field name.
@@ -91,21 +91,21 @@
         public string Message { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApiError"/> class with field and message.
+        /// Initializes a new instance of the <see cref="ApiErrorMessage"/> class with field and message.
         /// </summary>
         /// <param name="field">The field name.</param>
         /// <param name="message">The api error message.</param>
-        public ApiError(string field, string message)
+        public ApiErrorMessage(string field, string message)
         {
             Field = field != string.Empty ? field : null;
             Message = message;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApiError"/> class with message.
+        /// Initializes a new instance of the <see cref="ApiErrorMessage"/> class with message.
         /// </summary>
         /// <param name="message">The message.</param>
-        public ApiError(string message)
+        public ApiErrorMessage(string message)
         {
             Message = message;
         }

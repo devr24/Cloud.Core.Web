@@ -1,10 +1,8 @@
 ﻿using Cloud.Core.Testing;
 using Cloud.Core.Web.Csv;
+using Cloud.Core.Web.Tests.Fakes;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,8 +12,9 @@ using Xunit;
 namespace Cloud.Core.Web.Tests
 {
     [IsUnit]
-    public class CsvFormatterTest
+    public class CsvFormatterTests
     {
+        /// <summary>Ensure exceptions are thrown as expected when formatters are setup with a null parameter.</summary>
         [Fact]
         public void Test_CsvFormatter_Instance()
         {
@@ -23,7 +22,10 @@ namespace Cloud.Core.Web.Tests
             Assert.Throws<ArgumentNullException>(() => new CsvOutputFormatter(null));
         }
 
-        // This will test converting a csv input and converting it to an IEnumerable object.
+        /// <summary>
+        /// This will test converting a csv input and converting it to an IEnumerable object.
+        /// NOTE: Disabeld this test for now as there's problems with it.
+        /// </summary>
         [Fact]
         public void Test_CsvInputFormatter_CanRead()
         {
@@ -63,8 +65,8 @@ namespace Cloud.Core.Web.Tests
             var content = $"HeaderOne,HeaderTwo,HeaderThree{Environment.NewLine}1,2,3{Environment.NewLine}4,5,6";
 
             // Mock contexts for using with the output formatter (along with object that will be converted to Csv).
-            var mockHttpContext = HttpContextMock.GetResponseHttpContext(Encoding.ASCII.GetBytes(content), "text/cv");
-            var mockContext = new MockOutputFormatterContext(mockHttpContext, (s, e) => new StreamWriter(new MemoryStream()),
+            var mockHttpContext = FakeHttpContext.GetResponseHttpContext(Encoding.ASCII.GetBytes(content), "text/cv");
+            var mockContext = new FakeOutputFormatterContext(mockHttpContext, (s, e) => new StreamWriter(new MemoryStream()),
                 typeof(List<TestCsvParsed>),
                 new List<TestCsvParsed>() {
                     new TestCsvParsed { HeaderOne = "1", HeaderTwo = "2", HeaderThree = "3" },
@@ -92,42 +94,5 @@ namespace Cloud.Core.Web.Tests
         public string HeaderOne { get; set; }
         public string HeaderTwo { get; set; }
         public string HeaderThree { get; set; }
-    }
-
-    public class MockInputFormatterContext : InputFormatterContext
-    {
-        public MockInputFormatterContext(HttpContext httpContext, string modelName, ModelStateDictionary modelState, ModelMetadata metadata, Func<Stream, Encoding, TextReader> readerFactory) : base(httpContext, modelName, modelState, metadata, readerFactory)
-        {
-        }
-    }
-
-    public class MockOutputFormatterContext : OutputFormatterWriteContext
-    {
-        public MockOutputFormatterContext(HttpContext httpContext, Func<Stream, Encoding, TextWriter> writerFactory, Type objectType, object @object) 
-            : base(httpContext, writerFactory, objectType, @object)
-        {
-        }
-
-        public override HttpContext HttpContext { get => base.HttpContext; protected set => base.HttpContext = value; }
-        public override StringSegment ContentType { get => base.ContentType; set => base.ContentType = value; }
-        public override bool ContentTypeIsServerDefined { get => base.ContentTypeIsServerDefined; set => base.ContentTypeIsServerDefined = value; }
-        public override object Object { get => base.Object; protected set => base.Object = value; }
-        public override Type ObjectType { get => base.ObjectType; protected set => base.ObjectType = value; }
-        public override Func<Stream, Encoding, TextWriter> WriterFactory { get => base.WriterFactory; protected set => base.WriterFactory = value; }
-
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return base.ToString();
-        }
     }
 }

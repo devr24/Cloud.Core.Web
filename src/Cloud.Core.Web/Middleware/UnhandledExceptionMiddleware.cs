@@ -1,4 +1,4 @@
-﻿namespace Cloud.Core.Web.Middlewares
+﻿namespace Cloud.Core.Web.Middleware
 {
     using System;
     using System.Net;
@@ -17,12 +17,21 @@
         private readonly RequestDelegate _next;
         private readonly ILogger<UnhandledExceptionMiddleware> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnhandledExceptionMiddleware"/> class.
+        /// </summary>
+        /// <param name="next">The next.</param>
+        /// <param name="logger">The logger.</param>
         public UnhandledExceptionMiddleware(RequestDelegate next, ILogger<UnhandledExceptionMiddleware> logger)
         {
             _next = next;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Invokes the specified context.
+        /// </summary>
+        /// <param name="context">The context.</param>
         public async Task Invoke(HttpContext context)
         {
             try
@@ -49,10 +58,11 @@
 
             var message = exception.Message;
 
-            // We will supress exception messages under specific conditions, so replace message with default.
+            // We will suppress exception messages under specific conditions, so replace message with default.
             if (applySensitiveInfoFilter)
             {
-                message = $"An exception occurred of type {exception.GetBaseException().GetType().Name}. Message has been surpressed, please contact support for more information.";
+                message = $"An exception occurred of type {exception.GetBaseException().GetType().Name}. Message " +
+                          "has been suppressed, please contact support for more information.";
             }
 
             _logger?.LogError(exception, $"An unhandled exception has occurred while executing {context.Request.Method}");

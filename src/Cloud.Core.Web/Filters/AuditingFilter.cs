@@ -18,10 +18,7 @@ namespace Cloud.Core.Web.Filters
         /// <summary>
         /// Constructor takes in some event specific info.
         /// </summary>
-        public AuditingFilter(
-            string eventName,
-            string eventMessage,
-            IAuditLogger auditLogger)
+        public AuditingFilter(string eventName, string eventMessage, IAuditLogger auditLogger)
         {
             _eventName = eventName;
             _eventMessage = eventMessage;

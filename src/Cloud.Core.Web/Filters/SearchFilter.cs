@@ -41,10 +41,14 @@ namespace Cloud.Core.Web.Filters
     /// </summary>
     public class SearchFilter<T> : FilterBase where T : class, new()
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SearchFilter{T}"/> class.
+        /// </summary>
         public SearchFilter()
         {
             FilterData = (T)Activator.CreateInstance(typeof(T));
         }
+
         /// <summary>
         /// Gets or sets the filter data.
         /// This data is the data that will be searched on.
@@ -60,10 +64,6 @@ namespace Cloud.Core.Web.Filters
     /// </summary>
     public class SearchResult<T> : FilterBase
     {
-        public SearchResult()
-        {
-            FilterResults = (List<T>)Activator.CreateInstance(typeof(List<T>));
-        }
         /// <summary>
         /// Gets or sets the filtered results.
         /// </summary>
@@ -89,6 +89,15 @@ namespace Cloud.Core.Web.Filters
         public int TotalPages { get; set; }
         /// <summary>True if has another page of results, false if not</summary>
         public bool HasNextPage { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SearchResult{T}"/> class.
+        /// </summary>
+        public SearchResult()
+        {
+            FilterResults = (List<T>)Activator.CreateInstance(typeof(List<T>));
+        }
+
         /// <summary>
         /// private method to work out totals and page sizes.
         /// </summary>

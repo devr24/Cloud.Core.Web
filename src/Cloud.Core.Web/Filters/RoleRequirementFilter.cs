@@ -34,17 +34,9 @@ namespace Cloud.Core.Web.Filters
         /// <param name="context"></param>
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            IEnumerable<Claim> userRoles;
-
             // Get a list of claims - this will work if there is no user identity in the current context.
-            if (context.HttpContext.User.IsNullOrDefault())
-            {
-                userRoles = new List<Claim>();
-            }
-            else
-            {
-                userRoles = context.HttpContext.User.FindAll(x => x.Type.Equals(ClaimTypes.Role));
-            }
+            var userRoles = context.HttpContext.User.IsNullOrDefault() ? 
+                new List<Claim>() : context.HttpContext.User.FindAll(x => x.Type.Equals(ClaimTypes.Role));
 
             // If feature flags services exists, ensure RolesBasedAuthentication is on.
             if (_featureFlags != null)

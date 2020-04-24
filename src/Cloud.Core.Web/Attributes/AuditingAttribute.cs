@@ -17,10 +17,7 @@ namespace Cloud.Core.Web.Attributes
         /// </summary>
         /// <param name="eventType">Resource being invoked e.g. Access Policies</param>
         /// <param name="eventMessage">Custom message that goes with the auditing</param>
-        public AuditingAttribute(
-            string eventType,
-            string eventMessage
-            ) : base(typeof(AuditingFilter))
+        public AuditingAttribute(string eventType, string eventMessage) : base(typeof(AuditingFilter))
         {
             Arguments = new object[] { eventType, eventMessage };
         }

@@ -15,6 +15,9 @@
     {
         private readonly bool _logMessage;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValidateModelAttribute"/> class.
+        /// </summary>
         public ValidateModelAttribute() { }
 
         /// <summary>
@@ -26,6 +29,11 @@
             _logMessage = logValidationException;
         }
 
+        /// <summary>
+        /// Called when [action executing].
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <inheritdoc />
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             if (!context.ModelState.IsValid)

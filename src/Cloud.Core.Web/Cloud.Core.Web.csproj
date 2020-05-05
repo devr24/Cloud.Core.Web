@@ -11,7 +11,6 @@
     <Description>Core Web functionality for Cloud Core web based projects.</Description>
     <Copyright>Aylesbury Solutions Ltd</Copyright>
     <Version>3.1</Version>
-	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Web</RepositoryUrl>
     <PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
     <RepositoryType>Private</RepositoryType>

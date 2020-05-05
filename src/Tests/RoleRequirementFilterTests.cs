@@ -98,7 +98,6 @@ namespace Cloud.Core.Web.Tests
         public void Test_RoleRequirementFilter_NoFeatureFlagsSupplied_InvalidRoles()
         {
             // Arrange
-            var mockFeatureFlags = new Mock<IFeatureFlag>();
             var filter = new RoleRequirementFilter(new string[] { "TestRole" });
 
             var authContext = new AuthorizationFilterContext(new ActionContext

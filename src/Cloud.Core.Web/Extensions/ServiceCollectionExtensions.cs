@@ -70,7 +70,11 @@
                 o.AssumeDefaultVersionWhenUnspecified = true;
                 o.DefaultApiVersion = new ApiVersion(major, minor);
             });
-
+            services.AddVersionedApiExplorer(options =>
+            {
+                    options.GroupNameFormat = "'v'VVV";
+                    options.SubstituteApiVersionInUrl = true;
+            });
             services.AddSwaggerGen(c =>
             {
                 // Add the user defined settings first.

@@ -6,6 +6,7 @@ using Cloud.Core.Testing;
 using Cloud.Core.Web.Filters;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -18,6 +19,48 @@ namespace Cloud.Core.Web.Tests
     [IsUnit]
     public class ExtensionsTests
     {
+        /// <summary>Verify the file extension is returned as expected (with fullstop).</summary>
+        [Fact]
+        public void Test_FormFileExtensions_GetExtension_WithFullstop()
+        {
+            // Arrange
+            var formFile = new FormFile(null, 0, 0, "ExampleName", "ExampleName.txt");
+
+            // Act
+            var ext = formFile.GetExtension(false);
+
+            // Assert
+            ext.Should().Be(".txt");
+        }
+
+        /// <summary>Verify the file extension is returned as expected (without fullstop).</summary>
+        [Fact]
+        public void Test_FormFileExtensions_GetExtension_WithoutFullstop()
+        {
+            // Arrange
+            var formFile = new FormFile(null, 0, 0, "ExampleName", "ExampleName.txt");
+
+            // Act
+            var ext = formFile.GetExtension();
+
+            // Assert
+            ext.Should().Be("txt");
+        }
+
+        /// <summary>Verify the file extension is returned as expected (without fullstop).</summary>
+        [Fact]
+        public void Test_FormFileExtensions_GetFileName()
+        {
+            // Arrange
+            var formFile = new FormFile(null, 0, 0, "ExampleName", "ExampleName.txt");
+
+            // Act
+            var ext = formFile.GetFileNameWithoutExtension();
+
+            // Assert
+            ext.Should().Be("ExampleName");
+        }
+
         /// <summary>Verify assembly name is gathered correctly.</summary>
         [Fact]
         public void Test_AssemblyExtensions_GetName()

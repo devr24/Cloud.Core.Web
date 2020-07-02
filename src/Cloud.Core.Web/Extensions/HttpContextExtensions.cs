@@ -1,12 +1,25 @@
 ﻿namespace Microsoft.AspNetCore.Http
 {
     using System;
+    using System.Linq;
 
     /// <summary>
     /// Extensions to HttpContext class.
     /// </summary>
     public static class HttpContextExtension
     {
+        /// <summary>Gets the request locale.</summary>
+        /// <param name="context">The context.</param>
+        /// <param name="defaultCulture">The default culture to use if not set in the request.</param>
+        /// <returns>ProviderCultureResult.</returns>
+        public static string GetRequestLocale(this HttpContext context, string defaultCulture = "en")
+        {
+            var userLangs = context.Request.Headers["Accept-Language"].ToString();
+            var firstLang = userLangs.Split(',').FirstOrDefault();
+            var defaultLang = string.IsNullOrEmpty(firstLang) ? defaultCulture : firstLang;
+            return defaultLang;
+        }
+
         /// <summary>
         /// Gets the claim value corresponding to the passed in key.
         /// </summary>

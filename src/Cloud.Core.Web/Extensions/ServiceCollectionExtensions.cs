@@ -54,10 +54,11 @@
         /// </summary>
         /// <param name="services">The services.</param>
         /// <param name="versions">The versions.</param>
-        /// <param name="additionalConfig">The additional configuration.</param>
+        /// <param name="swaggerGenOptions">The additional swagger gen configuration.</param>
+        /// <param name="apiDescription">Function to set the API description information.</param>
         /// <returns>IServiceCollection.</returns>
         [ExcludeFromCodeCoverage] // Need to complete the testing from this.
-        public static IServiceCollection AddSwaggerWithVersions(this IServiceCollection services, double[] versions, Action<SwaggerGenOptions> additionalConfig = null, Func<double, OpenApiInfo> apiDescription = null)
+        public static IServiceCollection AddSwaggerWithVersions(this IServiceCollection services, double[] versions, Action<SwaggerGenOptions> swaggerGenOptions = null, Func<double, OpenApiInfo> apiDescription = null)
         {
             var latestVersion = versions.Max();
             var versionString = latestVersion.ToString(CultureInfo.InvariantCulture).Split('.');
@@ -82,7 +83,7 @@
                 c.EnableAnnotations();
 
                 // Add the user defined settings first.
-                additionalConfig?.Invoke(c);
+                swaggerGenOptions?.Invoke(c);
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {

@@ -9,7 +9,6 @@
     using AspNetCore.Builder;
     using AspNetCore.Mvc;
     using AspNetCore.Mvc.Abstractions;
-    using AspNetCore.Mvc.ApiExplorer;
     using OpenApi.Models;
     using Swashbuckle.AspNetCore.SwaggerGen;
     using Swashbuckle.AspNetCore.SwaggerUI;

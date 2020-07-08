@@ -9,6 +9,7 @@
     using AspNetCore.Builder;
     using AspNetCore.Mvc;
     using AspNetCore.Mvc.Abstractions;
+    using Microsoft.AspNetCore.Mvc.ApiExplorer;
     using OpenApi.Models;
     using Swashbuckle.AspNetCore.SwaggerGen;
     using Swashbuckle.AspNetCore.SwaggerUI;
@@ -34,14 +35,15 @@
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                // Run additional config method if set.
-                additionalConfig?.Invoke(c);
-
                 foreach (var version in versions)
                 {
                     routePrepend = routePrepend.IsNullOrEmpty() ? string.Empty : $"/{routePrepend}";
                     c.SwaggerEndpoint($"{routePrepend}/swagger/v{version:F1}/swagger.json", $"{Assembly.GetEntryAssembly().GetAssemblyName()} Api {version:F1}");
                 }
+
+                // Run additional config method if set.
+                additionalConfig?.Invoke(c);
+
             });
 
             return app;
@@ -55,7 +57,7 @@
         /// <param name="additionalConfig">The additional configuration.</param>
         /// <returns>IServiceCollection.</returns>
         [ExcludeFromCodeCoverage] // Need to complete the testing from this.
-        public static IServiceCollection AddSwaggerWithVersions(this IServiceCollection services, double[] versions, Action<SwaggerGenOptions> additionalConfig = null)
+        public static IServiceCollection AddSwaggerWithVersions(this IServiceCollection services, double[] versions, Action<SwaggerGenOptions> additionalConfig = null, Func<double, OpenApiInfo> apiDescription = null)
         {
             var latestVersion = versions.Max();
             var versionString = latestVersion.ToString(CultureInfo.InvariantCulture).Split('.');
@@ -77,10 +79,10 @@
             });
             services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
+
                 // Add the user defined settings first.
                 additionalConfig?.Invoke(c);
-
-                c.EnableAnnotations();
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -110,7 +112,16 @@
                 foreach (var version in versions)
                 {
                     var versionNumber = $"v{version:F1}";
-                    c.SwaggerDoc(versionNumber, new OpenApiInfo { Title = $"{Assembly.GetEntryAssembly().GetAssemblyName()} {version:F1}", Version = versionNumber });
+
+                    var versionInfo = new OpenApiInfo { Title = $"{Assembly.GetEntryAssembly().GetAssemblyName()} {version:F1}" };
+
+                    if (apiDescription != null)
+                    {
+                        var des = apiDescription.Invoke(version);
+                        versionInfo = des;
+                    }
+
+                    c.SwaggerDoc(versionNumber, versionInfo);
                 }
 
                 c.DocInclusionPredicate((docName, apiDesc) =>
@@ -127,6 +138,7 @@
                     }
                     return actionApiVersionModel.ImplementedApiVersions.Any(v => $"v{v}" == docName);
                 });
+
             });
 
             return services;

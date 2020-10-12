@@ -9,15 +9,50 @@
     using AspNetCore.Builder;
     using AspNetCore.Mvc;
     using AspNetCore.Mvc.Abstractions;
+    using Hosting;
     using OpenApi.Models;
     using Swashbuckle.AspNetCore.SwaggerGen;
     using Swashbuckle.AspNetCore.SwaggerUI;
+    using Cloud.Core.Web.Services;
 
     /// <summary>
     /// Class ServiceCollection extensions.
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>Add support for IHostedService where there is none out of the box.</summary>
+        /// <param name="serviceBuilder">Service Collection to extend.</param>
+        /// <param name="service">The service.</param>
+        /// <returns>ServiceCollection of serviceBuilder.</returns>
+        public static IServiceCollection AddManagedHostedService(this IServiceCollection serviceBuilder, IHostedService service)
+        {
+            if (!serviceBuilder.ContainsService(typeof(HostedServiceLifetime)))
+            {
+                serviceBuilder.AddSingleton<HostedServiceLifetime>();
+            }
+
+            serviceBuilder.AddSingleton(typeof(IHostedService), service);
+
+            return serviceBuilder;
+        }
+
+        /// <summary>Add support for IHostedService where there is none out of the box.</summary>
+        /// <param name="serviceBuilder">Service Collection to extend.</param>
+        /// <returns>ServiceCollection of serviceBuilder.</returns>
+        public static IServiceCollection AddManagedHostedService<T>(this IServiceCollection serviceBuilder)
+            where T: IHostedService, new()
+        {
+            if (!serviceBuilder.ContainsService(typeof(HostedServiceLifetime)))
+            {
+                serviceBuilder.AddSingleton<HostedServiceLifetime>();
+            }
+
+            var type = typeof(T);
+            serviceBuilder.AddSingleton(typeof(IHostedService), type);
+
+            return serviceBuilder;
+        }
+
         /// <summary>
         /// Use the swagger UI with versions documented.
         /// </summary>
@@ -51,7 +86,7 @@
         /// <summary>
         /// Adds the swagger functionality with api versioning - will document each version passed.
         /// </summary>
-        /// <param name="services">The services.</param>
+        /// <param name="services">The serviceBuilder.</param>
         /// <param name="versions">The versions.</param>
         /// <param name="swaggerGenOptions">The additional swagger gen configuration.</param>
         /// <param name="apiDescription">Function to set the API description information.</param>

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Cloud.Core.Testing;
 using Cloud.Core.Web.Filters;
+using Cloud.Core.Web.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Xunit;
 
@@ -753,6 +757,65 @@ namespace Cloud.Core.Web.Tests
 
             // Assert
             result.FilterResults.Should().HaveCount(0);
+        }
+
+        /// <summary>Ensure the extension method adds the hosted service as expected.</summary>
+        [Fact]
+        public void Test_ServiceCollection_AddManagedHostedService()
+        {
+            // Arrange
+            IServiceCollection serviceBuilder = new ServiceCollection();
+
+            // Act
+            serviceBuilder.AddManagedHostedService<HostedServiceSample>();
+            serviceBuilder.AddManagedHostedService(new HostedServiceSample());
+            var services = serviceBuilder.BuildServiceProvider();
+            var lifeTimeService = services.GetService<HostedServiceLifetime>();
+
+            // Assert
+            lifeTimeService.Should().NotBeNull();
+            lifeTimeService.HostedServices.Count().Should().Be(2);
+            lifeTimeService.HostedServices.Where(s => (s as HostedServiceSample).StartCalled).Count().Should().Be(2);
+        }
+
+        /// <summary>Ensure the hosted service collection stops as expected.</summary>
+        [Fact]
+        public void Test_ManagedHostedService_Stopped()
+        {
+            // Arrange
+            IServiceCollection serviceBuilder = new ServiceCollection();
+
+            // Act
+            serviceBuilder.AddManagedHostedService<HostedServiceSample>();
+            serviceBuilder.AddManagedHostedService(new HostedServiceSample());
+            var services = serviceBuilder.BuildServiceProvider();
+            var lifeTimeService = services.GetService<HostedServiceLifetime>();
+            lifeTimeService.StopServices().GetAwaiter().GetResult();
+
+            // Assert
+            lifeTimeService.HostedServices.Where(s => (s as HostedServiceSample).StopCalled).Count().Should().Be(2);
+        }
+
+        private class HostedServiceSample : IHostedService
+        {
+            private CancellationToken _token;
+
+            public bool StartCalled { get; private set; }
+            public bool StopCalled { get; private set; }
+            public bool IsCancelled => _token != null && _token.IsCancellationRequested;
+
+            public Task StartAsync(CancellationToken cancellationToken)
+            {
+                _token = cancellationToken;
+                StartCalled = true;
+                return Task.FromResult(true);
+            }
+
+            public Task StopAsync(CancellationToken cancellationToken)
+            {
+                StopCalled = true;
+                return Task.FromResult(true);
+            }
         }
 
     }

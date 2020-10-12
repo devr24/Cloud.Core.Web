@@ -775,6 +775,11 @@ namespace Cloud.Core.Web.Tests
             // Assert
             lifeTimeService.Should().NotBeNull();
             lifeTimeService.HostedServices.Count().Should().Be(2);
+            
+            // Note delay is included because this is a contrived example where we're checking start called is true before
+            // its gurnateed to have been called - the delay ensures it has time to execute.
+            Task.Delay(300).GetAwaiter().GetResult(); 
+
             lifeTimeService.HostedServices.Where(s => (s as HostedServiceSample).StartCalled).Count().Should().Be(2);
         }
 

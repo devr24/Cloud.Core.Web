@@ -80,42 +80,6 @@ namespace Cloud.Core.Web.Tests
             assemblyNameAfter.Should().NotBe(null); // got assembly so name is set
         }
 
-        /// <summary>Verifies Swagger and Versioning services are added using the extension method.</summary>
-        [Fact]
-        public void Test_ServiceCollection_AddSwaggerWithVersioning()
-        {
-            // Arrange
-            IServiceCollection services = new ServiceCollection();
-            var initialCount = services.Count;
-
-            // Act
-            services.AddSwaggerWithVersions(new[] { 1.0, 2.0, 2.1 });
-            var updatedCount = services.Count;
-            var serviceProvider = services.BuildServiceProvider();
-
-            // Assert
-            updatedCount.Should().BeGreaterThan(initialCount);
-            services.Any(x => x.ServiceType == typeof(Swashbuckle.AspNetCore.Swagger.ISwaggerProvider)).Should().BeTrue();
-            services.Any(x => x.ServiceType == typeof(Microsoft.AspNetCore.Mvc.ReportApiVersionsAttribute)).Should().BeTrue();
-        }
-
-        /// <summary>Ensure swagger has been added to the application using the extension method.</summary>
-        [Fact]
-        public void Test_ApplicationBuilder_UseSwaggerWithVersion()
-        {
-            // Arrange
-            IServiceCollection services = new ServiceCollection();
-            services.AddSwaggerWithVersions(new[] { 1.0, 2 });
-            IApplicationBuilder app = new ApplicationBuilder(services.BuildServiceProvider());
-
-            // Act
-            app.UseSwaggerWithVersion(new[] { 1.0, 2 }, null, (c) => c.RoutePrefix = "");
-
-            // Assert
-            services.Any(x => x.ServiceType == typeof(Swashbuckle.AspNetCore.Swagger.ISwaggerProvider)).Should().BeTrue();
-            services.Any(x => x.ServiceType == typeof(Microsoft.AspNetCore.Mvc.ReportApiVersionsAttribute)).Should().BeTrue();
-        }
-
         /// <summary>Ensure localisation has been added to the application using extension method.</summary>
         [Fact]
         public void Test_ApplicationBuilder_UseLocalizationMiddleware()
@@ -759,55 +723,13 @@ namespace Cloud.Core.Web.Tests
             result.FilterResults.Should().HaveCount(0);
         }
 
-        /// <summary>Ensure the extension method adds the hosted service as expected.</summary>
-        [Fact]
-        public void Test_ServiceCollection_AddManagedHostedService()
-        {
-            // Arrange
-            IServiceCollection serviceBuilder = new ServiceCollection();
-
-            // Act
-            serviceBuilder.AddManagedHostedService<HostedServiceSample>();
-            serviceBuilder.AddManagedHostedService(new HostedServiceSample());
-            var services = serviceBuilder.BuildServiceProvider();
-            var lifeTimeService = services.GetService<HostedServiceLifetime>();
-
-            // Assert
-            lifeTimeService.Should().NotBeNull();
-            lifeTimeService.HostedServices.Count().Should().Be(2);
-            
-            // Note delay is included because this is a contrived example where we're checking start called is true before
-            // its gurnateed to have been called - the delay ensures it has time to execute.
-            Task.Delay(300).GetAwaiter().GetResult(); 
-
-            lifeTimeService.HostedServices.Where(s => (s as HostedServiceSample).StartCalled).Count().Should().Be(2);
-        }
-
-        /// <summary>Ensure the hosted service collection stops as expected.</summary>
-        [Fact]
-        public void Test_ManagedHostedService_Stopped()
-        {
-            // Arrange
-            IServiceCollection serviceBuilder = new ServiceCollection();
-
-            // Act
-            serviceBuilder.AddManagedHostedService<HostedServiceSample>();
-            serviceBuilder.AddManagedHostedService(new HostedServiceSample());
-            var services = serviceBuilder.BuildServiceProvider();
-            var lifeTimeService = services.GetService<HostedServiceLifetime>();
-            lifeTimeService.StopServices().GetAwaiter().GetResult();
-
-            // Assert
-            lifeTimeService.HostedServices.Where(s => (s as HostedServiceSample).StopCalled).Count().Should().Be(2);
-        }
-
         private class HostedServiceSample : IHostedService
         {
             private CancellationToken _token;
 
             public bool StartCalled { get; private set; }
             public bool StopCalled { get; private set; }
-            public bool IsCancelled => _token != null && _token.IsCancellationRequested;
+            public bool IsCancelled => _token.IsCancellationRequested;
 
             public Task StartAsync(CancellationToken cancellationToken)
             {

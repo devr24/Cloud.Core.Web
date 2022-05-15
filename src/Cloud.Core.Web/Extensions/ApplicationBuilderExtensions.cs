@@ -7,6 +7,7 @@
     using System.Globalization;
     using System;
     using System.Linq;
+    using Cloud.Core.Extensions;
 
     /// <summary>
     /// Extension methods for IApplicationBuilder.

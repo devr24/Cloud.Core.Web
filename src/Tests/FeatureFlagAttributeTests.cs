@@ -101,12 +101,12 @@ namespace Cloud.Core.Web.Tests
             // Act
             featureFlag.OnActionExecuting(context);
             var result = context.Result as NotFoundObjectResult;
-            var apiError = result.Value as ApiErrorResult;
+            var apiError = result.Value as Validation.ValidationProblemDetails;
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("This route has been disabled.", apiError.Errors.First().Message);
-
+            Assert.Equal("This route has been disabled.", apiError.ErrorItems.First().Key);
+            
             mockFeatureFlags.Verify(m =>
             m.GetFeatureFlag(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
         }

@@ -1,5 +1,6 @@
-﻿namespace Cloud.Core.Web.Attributes
+﻿namespace Cloud.Core.Web.Validation
 {
+    using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Filters;
     using Microsoft.Extensions.Logging;
     using System;
@@ -9,7 +10,7 @@
     /// model validation without the need for code.  Returns "BadRequestObjectResult" (400 response)
     /// with model state within the body.
     /// </summary>
-    /// <seealso cref="Microsoft.AspNetCore.Mvc.Filters.ActionFilterAttribute" />
+    /// <seealso cref="ActionFilterAttribute" />
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class ValidateModelAttribute : ActionFilterAttribute
     {
@@ -38,7 +39,7 @@
         {
             if (!context.ModelState.IsValid)
             {
-                var validationFailedResult = new ValidationFailedResult(context.ModelState);
+                var validationFailedResult = new BadRequestObjectResult(new ValidationProblemDetails(context.ModelState));
 
                 if (_logMessage)
                 {

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+	  <TargetFramework>net6.0</TargetFramework>
     <Company>Aylesbury Solutions Ltd</Company>
     <IsPackable>true</IsPackable>
     <PackageId>Cloud.Core.Web</PackageId>
@@ -10,7 +10,7 @@
     <PackageReleaseNotes />
     <Description>Core Web functionality for Cloud Core web based projects.</Description>
     <Copyright>Aylesbury Solutions Ltd</Copyright>
-    <Version>3.1</Version>
+    <Version>6.0</Version>
     <RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Web</RepositoryUrl>
     <PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
     <RepositoryType>Private</RepositoryType>
@@ -27,17 +27,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cloud.Core" Version="3.1.3600.725" />
+    <Compile Remove="ApiErrorResult.cs" />
+    <Compile Remove="ValidationFailedResult.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cloud.Core" Version="5.0.3641.1078" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.0.0" />
-	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.5" />
-    <PackageReference Include="Polly" Version="7.2.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.5.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+    <PackageReference Include="Polly" Version="7.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.3.1" />
   </ItemGroup>
 
 </Project>

@@ -41,8 +41,8 @@ namespace Cloud.Core.Web.Attributes
             var flag = featureFlagService.GetFeatureFlag(_featureFlagKey);
 
             if (!flag)
-            {
-                context.Result = new NotFoundObjectResult(new ApiErrorResult("This route has been disabled."));
+            { 
+                context.Result = new NotFoundObjectResult(new Validation.ValidationProblemDetails("This route has been disabled."));
             }
         }
     }

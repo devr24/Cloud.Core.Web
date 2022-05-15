@@ -68,7 +68,7 @@
             _logger?.LogError(exception, $"An unhandled exception has occurred while executing {context.Request.Method}");
 
             // ApiErrorResponse will be output.
-            var apiError = new ApiErrorResult(exception, message); 
+            var apiError = new Validation.ValidationProblemDetails(message, exception); 
 
             var result = JsonConvert.SerializeObject(apiError);
             context.Response.ContentType = "application/json";

@@ -17,9 +17,7 @@ namespace Cloud.Core.Web.Validation
             {
                 setupAction.InvalidModelStateResponseFactory = context =>
                 {
-                    var problemDetails = new ValidationProblemDetails(context, System.Net.HttpStatusCode.BadRequest); ;
-
-                    problemDetails.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
+                    var problemDetails = new ValidationProblemDetails(context, System.Net.HttpStatusCode.BadRequest);
 
                     return new BadRequestObjectResult(problemDetails)
                     {

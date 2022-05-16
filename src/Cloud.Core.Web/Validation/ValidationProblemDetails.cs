@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.Json.Serialization;
-using Cloud.Core.Web.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Cloud.Core.Web.Validation
 {
@@ -27,6 +25,7 @@ namespace Cloud.Core.Web.Validation
             Status = (int)statusCode;
             Detail = "See the errors property for details";
             Instance = context.HttpContext.Request.Path;
+            this.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
         }
 
         /// <summary>
@@ -41,6 +40,7 @@ namespace Cloud.Core.Web.Validation
             Status = (int)statusCode;
             Detail = "See the errors property for details";
             Instance = context.HttpContext.Request.Path;
+            this.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
         }
         /// <summary>
         /// Constructor, build using status code.
@@ -54,6 +54,7 @@ namespace Cloud.Core.Web.Validation
             Status = (int)statusCode;
             Detail = "See the errors property for details";
             Instance = context.Request.Path;
+            this.Extensions.Add("traceId", context.TraceIdentifier);
         }
         ///// <summary>
         ///// Contructor, built using ModelState.

@@ -56,58 +56,6 @@ namespace Cloud.Core.Web.Validation
             Instance = context.Request.Path;
             this.Extensions.Add("traceId", context.TraceIdentifier);
         }
-        ///// <summary>
-        ///// Contructor, built using ModelState.
-        ///// </summary>
-        ///// <param name="modelState">Model state used to build instance.</param>
-        //public ValidationProblemDetails(ModelStateDictionary modelState) : base(modelState)
-        //{
-        //    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
-        //    Title = "One or more model validation errors occurred.";
-        //    Status = (int)statusCode;
-        //    Detail = "See the errors property for details";
-        //    Instance = context.HttpContext.Request.Path;
-        //}
-
-        ///// <summary>
-        ///// Contructor, built using error list.
-        ///// </summary>
-        ///// <param name="errors">Error list used to build instance.</param>
-        //public ValidationProblemDetails(IDictionary<string, string[]> errors) : base(errors)
-        //{
-        //    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
-        //    Title = "One or more model validation errors occurred.";
-        //    Status = (int)statusCode;
-        //    Detail = "See the errors property for details";
-        //    Instance = context.HttpContext.Request.Path;
-        //}
-
-        ///// <summary>
-        ///// Constructor, build problem details using an exception.
-        ///// </summary>
-        ///// <param name="message">Top level error message.</param>
-        ///// <param name="ex">Exception to parse.</param>
-        //public ValidationProblemDetails(string message, Exception ex = null) : base()
-        //{
-        //    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
-        //    Title = "One or more model validation errors occurred.";
-        //    Status = (int)statusCode;
-        //    Detail = "See the errors property for details";
-        //    Instance = context.HttpContext.Request.Path;
-
-        //    var errors = new List<string>();
-        //    var currentEx = ex;
-
-        //    if (currentEx != null)
-        //    {
-        //        do
-        //        {
-        //            errors.Add(currentEx.Message);
-        //            currentEx = currentEx.InnerException;
-        //        } while (currentEx != null);
-        //    }
-        //    base.Errors.Add(message, errors.ToArray());
-        //}
 
         /// <summary>
         /// Gets the validation errors associated with this instance of <see cref="ValidationProblemDetails"/>.
@@ -119,7 +67,7 @@ namespace Cloud.Core.Web.Validation
         /// Gets the validation errors associated with this instance of <see cref="ValidationProblemDetails"/>.
         /// </summary>
         [JsonPropertyName("errors")]
-        [JsonPropertyOrder(1)]
+        [JsonPropertyOrder(2)]
         public IDictionary<string, ErrorItem[]> ErrorItems => GetErrors();
 
         private IDictionary<string, ErrorItem[]> GetErrors()
@@ -132,7 +80,6 @@ namespace Cloud.Core.Web.Validation
 
             return returnItems;
         }
-
     }
 
     /// <summary>

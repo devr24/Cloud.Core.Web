@@ -1,6 +1,7 @@
 ﻿namespace Cloud.Core.Web.Middleware
 {
     using System;
+    using System.Collections.Generic;
     using System.Net;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
@@ -68,7 +69,8 @@
             _logger?.LogError(exception, $"An unhandled exception has occurred while executing {context.Request.Method}");
 
             // ApiErrorResponse will be output.
-            var apiError = new Validation.ValidationProblemDetails(message, exception); 
+            var apiError = new Validation.ValidationProblemDetails(context, HttpStatusCode.InternalServerError);
+            apiError.Errors.Add("Unhandled", new string[] { message });
 
             var result = JsonConvert.SerializeObject(apiError);
             context.Response.ContentType = "application/json";

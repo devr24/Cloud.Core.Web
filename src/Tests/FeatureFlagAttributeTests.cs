@@ -105,7 +105,8 @@ namespace Cloud.Core.Web.Tests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("This route has been disabled.", apiError.ErrorItems.First().Key);
+            Assert.Equal("Feature", apiError.ErrorItems.First().Key);
+            Assert.Equal("This route has been disabled.", apiError.ErrorItems.First().Value.First().Message);
             
             mockFeatureFlags.Verify(m =>
             m.GetFeatureFlag(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);

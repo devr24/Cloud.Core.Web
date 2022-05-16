@@ -33,7 +33,7 @@ namespace Cloud.Core.Web.Validation
             var apiBehaviorOptions = controllerBase.HttpContext.RequestServices.GetService(typeof(IOptions<ApiBehaviorOptions>)) as IOptions<ApiBehaviorOptions>;
 
             if (apiBehaviorOptions == null)
-                return new BadRequestObjectResult(new ValidationProblemDetails(controllerBase.ModelState));
+                return new BadRequestObjectResult(new ValidationProblemDetails(controllerBase.ControllerContext, System.Net.HttpStatusCode.BadRequest));
 
             return apiBehaviorOptions.Value.InvalidModelStateResponseFactory(controllerBase.ControllerContext);
         }

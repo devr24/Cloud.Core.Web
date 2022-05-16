@@ -39,7 +39,7 @@
         {
             if (!context.ModelState.IsValid)
             {
-                var validationFailedResult = new BadRequestObjectResult(new ValidationProblemDetails(context.ModelState));
+                var validationFailedResult = new BadRequestObjectResult(new ValidationProblemDetails(context, System.Net.HttpStatusCode.BadRequest));
 
                 if (_logMessage)
                 {

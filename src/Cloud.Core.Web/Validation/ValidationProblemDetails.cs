@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text.Json.Serialization;
 using Cloud.Core.Web.Attributes;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -29,37 +30,83 @@ namespace Cloud.Core.Web.Validation
         }
 
         /// <summary>
-        /// Contructor, built using ModelState.
+        /// Constructor, build using status code.
         /// </summary>
-        /// <param name="modelState">Model state used to build instance.</param>
-        public ValidationProblemDetails(ModelStateDictionary modelState) : base(modelState) { }
-
-        /// <summary>
-        /// Contructor, built using error list.
-        /// </summary>
-        /// <param name="errors">Error list used to build instance.</param>
-        public ValidationProblemDetails(IDictionary<string, string[]> errors) : base(errors) { }
-
-        /// <summary>
-        /// Constructor, build problem details using an exception.
-        /// </summary>
-        /// <param name="message">Top level error message.</param>
-        /// <param name="ex">Exception to parse.</param>
-        public ValidationProblemDetails(string message, Exception ex = null) : base() 
+        /// <param name="context">Calling controller context.</param>
+        /// <param name="statusCode">Http status code of response.</param>
+        public ValidationProblemDetails(ActionContext context, HttpStatusCode statusCode) : base(context.ModelState)
         {
-            var errors = new List<string>();
-            var currentEx = ex;
-
-            if (currentEx != null)
-            {
-                do
-                {
-                    errors.Add(currentEx.Message);
-                    currentEx = currentEx.InnerException;
-                } while (currentEx != null);
-            }
-            base.Errors.Add(message, errors.ToArray());
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
+            Title = "One or more model validation errors occurred.";
+            Status = (int)statusCode;
+            Detail = "See the errors property for details";
+            Instance = context.HttpContext.Request.Path;
         }
+        /// <summary>
+        /// Constructor, build using status code.
+        /// </summary>
+        /// <param name="context">Calling controller context.</param>
+        /// <param name="statusCode">Http status code of response.</param>
+        public ValidationProblemDetails(HttpContext context, HttpStatusCode statusCode) : base()
+        {
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
+            Title = "One or more model validation errors occurred.";
+            Status = (int)statusCode;
+            Detail = "See the errors property for details";
+            Instance = context.Request.Path;
+        }
+        ///// <summary>
+        ///// Contructor, built using ModelState.
+        ///// </summary>
+        ///// <param name="modelState">Model state used to build instance.</param>
+        //public ValidationProblemDetails(ModelStateDictionary modelState) : base(modelState)
+        //{
+        //    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
+        //    Title = "One or more model validation errors occurred.";
+        //    Status = (int)statusCode;
+        //    Detail = "See the errors property for details";
+        //    Instance = context.HttpContext.Request.Path;
+        //}
+
+        ///// <summary>
+        ///// Contructor, built using error list.
+        ///// </summary>
+        ///// <param name="errors">Error list used to build instance.</param>
+        //public ValidationProblemDetails(IDictionary<string, string[]> errors) : base(errors)
+        //{
+        //    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
+        //    Title = "One or more model validation errors occurred.";
+        //    Status = (int)statusCode;
+        //    Detail = "See the errors property for details";
+        //    Instance = context.HttpContext.Request.Path;
+        //}
+
+        ///// <summary>
+        ///// Constructor, build problem details using an exception.
+        ///// </summary>
+        ///// <param name="message">Top level error message.</param>
+        ///// <param name="ex">Exception to parse.</param>
+        //public ValidationProblemDetails(string message, Exception ex = null) : base()
+        //{
+        //    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
+        //    Title = "One or more model validation errors occurred.";
+        //    Status = (int)statusCode;
+        //    Detail = "See the errors property for details";
+        //    Instance = context.HttpContext.Request.Path;
+
+        //    var errors = new List<string>();
+        //    var currentEx = ex;
+
+        //    if (currentEx != null)
+        //    {
+        //        do
+        //        {
+        //            errors.Add(currentEx.Message);
+        //            currentEx = currentEx.InnerException;
+        //        } while (currentEx != null);
+        //    }
+        //    base.Errors.Add(message, errors.ToArray());
+        //}
 
         /// <summary>
         /// Gets the validation errors associated with this instance of <see cref="ValidationProblemDetails"/>.
